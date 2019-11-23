@@ -1,10 +1,18 @@
+# Manually added
+secret.txt
+encodings.pickle
+asset/
+temp/
+images/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
 # C extensions
-*.so
+# *.so
 
 # Distribution / packaging
 .Python
