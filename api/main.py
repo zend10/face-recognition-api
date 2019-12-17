@@ -126,8 +126,10 @@ def register_into_group():
     if os.path.exists(path):
         shutil.rmtree(path)
 
-    os.mkdir('asset' + os.path.sep + group)
-    os.mkdir('asset' + os.path.sep + group + os.path.sep + username)
+    if os.path.exists('asset' + os.path.sep + group + os.path.sep) == False:
+        os.mkdir('asset' + os.path.sep + group + os.path.sep)
+
+    os.mkdir(path)
 
     # Write image to folder
     counter = 0
