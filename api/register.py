@@ -16,17 +16,17 @@ pose_predictor_5_point = dlib.shape_predictor(predictor_5_point_model)
 face_recognition_model = face_recognition_models.face_recognition_model_location()
 face_encoder = dlib.face_recognition_model_v1(face_recognition_model)
 
-def registerFaces(assetPath):
-    imagePaths = list(paths.list_images(assetPath))
-    knownEncodings = []
-    knownNames = []
+def register_faces(asset_path):
+    image_paths = list(paths.list_images(asset_path))
+    known_encodings = []
+    known_names = []
 
-    for (i, imagePath) in enumerate(imagePaths):
-        name = imagePath.split(os.path.sep)[-2]
-        image = cv2.imread(imagePath)
+    for (i, image_path) in enumerate(image_paths):
+        name = image_path.split(os.path.sep)[-2]
+        image = cv2.imread(image_path)
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        boxes = dcp.getBox(rgb)
+        boxes = dcp.get_box(rgb)
 
         if (boxes == [(0,0,0,0)]):
             return False
@@ -34,10 +34,10 @@ def registerFaces(assetPath):
         encodings = face_encodings(rgb, boxes)
 
         for encoding in encodings:
-            knownEncodings.append(encoding)
-            knownNames.append(name)
+            known_encodings.append(encoding)
+            known_names.append(name)
 
-    newData = {"encodings": knownEncodings, "names": knownNames}
+    new_data = {"encodings": known_encodings, "names": known_names}
     data = {}
 
     if os.path.exists('encodings.pickle') == False:
@@ -47,12 +47,56 @@ def registerFaces(assetPath):
     if os.path.getsize('encodings.pickle') > 0:
         with open('encodings.pickle', 'rb') as f:
             data = pickle.load(f)
-            data["encodings"] += newData["encodings"]
-            data["names"] += newData["names"]
+            data["encodings"] += new_data["encodings"]
+            data["names"] += new_data["names"]
     else:
-        data = newData
+        data = new_data
 
     with open('encodings.pickle', 'wb') as f:
+        f.write(pickle.dumps(data))
+
+    return True
+
+def register_faces_into_group(asset_path):
+    image_paths = list(paths.list_images(asset_path))
+    known_encodings = []
+    known_names = []
+
+    for (i, image_path) in enumerate(image_paths):
+        name = image_path.split(os.path.sep)[-2]
+        group = image_path.split(os.path.sep)[-3]
+        image = cv2.imread(image_path)
+        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        boxes = dcp.get_box(rgb)
+
+        if (boxes == [(0,0,0,0)]):
+            return False
+        
+        encodings = face_encodings(rgb, boxes)
+
+        for encoding in encodings:
+            known_encodings.append(encoding)
+            known_names.append(name)
+
+    new_data = {"encodings": known_encodings, "names": known_names}
+    data = {}
+
+    path_name = 'asset' + os.path.sep + group + os.path.sep + 'encodings.pickle'
+
+    if os.path.exists(path_name) == False:
+        f = open(path_name, 'w')
+        f.close()
+
+    if os.path.getsize(path_name) > 0:
+        with open(path_name, 'rb') as f:
+            data = pickle.load(f)
+            data["encodings"] += new_data["encodings"]
+            data["names"] += new_data["names"]
+    else:
+        data = new_data
+
+    with open(path_name, 'wb') as f:
         f.write(pickle.dumps(data))
 
     return True
