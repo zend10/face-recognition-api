@@ -48,6 +48,8 @@ def identifying_faces_from_group(asset_path, group):
     image = cv2.imread(asset_path)
     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
+    print(data)
+
     boxes = dcp.get_box(rgb)
     encodings = face_encodings(rgb, boxes)
 
@@ -56,9 +58,13 @@ def identifying_faces_from_group(asset_path, group):
         matches = compare_faces(data["encodings"], encoding)
         name = "Unknown"
 
+        print(matches)
+
         if True in matches:
             matchedIdxs = [i for (i, b) in enumerate(matches) if b]
             counts = {}
+
+            print(matchedIdxs)
 
             for i in matchedIdxs:
                 name = data["names"][i]

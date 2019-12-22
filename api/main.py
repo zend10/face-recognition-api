@@ -12,7 +12,6 @@ secret_key = open('secret.txt', 'r').read()
 def hello():
     return 'Hello, World!'
 
-
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if (check_secret_key(request.form.get('secretkey')) == False):
@@ -58,7 +57,6 @@ def register():
         return get_failed_response('Please retake your image.')
 
     return get_successful_response('Images are registered.')
-
 
 @app.route("/identify", methods=['GET', 'POST'])
 def identify():
@@ -176,11 +174,39 @@ def identify_from_group():
     # Machine learning here
     names = id.identifying_faces_from_group(path, group)
 
+    print(names)
+
     # Delete image after machine learning
     os.remove(path)
 
     # Change this to return names from the result of identifying
     return get_successful_response('Images are identified.', names)
+
+@app.route("/deleteFromGroup", methods=['GET', 'POST'])
+def delete_from_group():
+    if (check_secret_key(request.form.get('secretkey')) == False):
+        return get_failed_response('Not allowed.')
+
+    # Validate username
+    username = request.form.get('username')
+    if username == None or re.search("^[a-zA-Z0-9]+$", username) == None:
+        return get_failed_response('Username is invalid.')
+
+    #validate group
+    group = request.form.get('group')
+    if group == None or re.search("^[a-zA-Z0-9]+$", group) == None:
+        return get_failed_response('Group is invalid.')
+
+    # Remove folder if already exists
+    path = 'asset' + os.path.sep + group + os.path.sep + username + os.path.sep
+
+    if os.path.exists(path):
+        reg.remove_face_from_group(path)
+        shutil.rmtree(path)
+    else:
+        return get_failed_response('Doesn\'t exist.')
+
+    return get_successful_response('Images are removed.')
 
 def get_failed_response(msg):
     return jsonify(

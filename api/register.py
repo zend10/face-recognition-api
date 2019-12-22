@@ -96,8 +96,42 @@ def register_faces_into_group(asset_path):
     else:
         data = new_data
 
+    # print(data, file=sys.stderr)
+
     with open(path_name, 'wb') as f:
         f.write(pickle.dumps(data))
+
+    return True
+
+def remove_face_from_group(asset_path):
+    image_paths = list(paths.list_images(asset_path))
+
+    data = {}
+
+    for (i, image_path) in enumerate(image_paths):
+        name = image_path.split(os.path.sep)[-2]
+        group = image_path.split(os.path.sep)[-3]
+
+    path_name = 'asset' + os.path.sep + group + os.path.sep + 'encodings.pickle'
+
+    if os.path.exists(path_name) == False:
+        f = open(path_name, 'w')
+        f.close()
+
+    new_data = {"encodings": [], "names": []}
+
+    if os.path.getsize(path_name) > 0:
+        with open(path_name, 'rb') as f:
+            data = pickle.load(f)
+            for (i, saved_name) in enumerate(data["names"]):
+                if name != saved_name:
+                    new_data["names"].append(saved_name) 
+                    new_data["encodings"].append(data["encodings"][i])
+
+    # print(new_data, file=sys.stderr)
+
+    with open(path_name, 'wb') as f:
+        f.write(pickle.dumps(new_data))
 
     return True
 
