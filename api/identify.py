@@ -15,12 +15,12 @@ pose_predictor_5_point = dlib.shape_predictor(predictor_5_point_model)
 face_recognition_model = face_recognition_models.face_recognition_model_location()
 face_encoder = dlib.face_recognition_model_v1(face_recognition_model)
 
-def identifyingFaces(assetPath):
+def identifying_faces(asset_path):
     data = pickle.loads(open('encodings.pickle', 'rb').read())
-    image = cv2.imread(assetPath)
+    image = cv2.imread(asset_path)
     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    boxes = dcp.getBox(rgb)
+    boxes = dcp.get_box(rgb)
     encodings = face_encodings(rgb, boxes)
 
     names = []
@@ -31,6 +31,40 @@ def identifyingFaces(assetPath):
         if True in matches:
             matchedIdxs = [i for (i, b) in enumerate(matches) if b]
             counts = {}
+
+            for i in matchedIdxs:
+                name = data["names"][i]
+                counts[name] = counts.get(name, 0) + 1
+
+            name = max(counts, key=counts.get)
+
+        names.append(name)
+
+    return names
+
+def identifying_faces_from_group(asset_path, group):
+    path_name = 'asset' + os.path.sep + group + os.path.sep + 'encodings.pickle'
+    data = pickle.loads(open(path_name, 'rb').read())
+    image = cv2.imread(asset_path)
+    rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    print(data)
+
+    boxes = dcp.get_box(rgb)
+    encodings = face_encodings(rgb, boxes)
+
+    names = []
+    for encoding in encodings:
+        matches = compare_faces(data["encodings"], encoding)
+        name = "Unknown"
+
+        print(matches)
+
+        if True in matches:
+            matchedIdxs = [i for (i, b) in enumerate(matches) if b]
+            counts = {}
+
+            print(matchedIdxs)
 
             for i in matchedIdxs:
                 name = data["names"][i]
@@ -93,4 +127,6 @@ def face_distance(face_encodings, face_to_compare):
     if len(face_encodings) == 0:
         return np.empty((0))
 
-    return np.linalg.norm(face_encodings - face_to_compare, axis=1)
+    dist = np.linalg.norm(face_encodings - face_to_compare, axis=1)
+    # print(dist)
+    return dist

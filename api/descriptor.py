@@ -7,7 +7,7 @@ sys.path.insert(1, '../hog')
 import hog
 
 
-def getBox(rgb):
+def get_box(rgb):
     rgb = color.rgb2gray(rgb)
     rgb = transform.rescale(rgb, 0.5)    
 
