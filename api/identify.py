@@ -48,8 +48,6 @@ def identifying_faces_from_group(asset_path, group):
     image = cv2.imread(asset_path)
     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    print(data)
-
     boxes = dcp.get_box(rgb)
     encodings = face_encodings(rgb, boxes)
 
@@ -58,13 +56,9 @@ def identifying_faces_from_group(asset_path, group):
         matches = compare_faces(data["encodings"], encoding)
         name = "Unknown"
 
-        print(matches)
-
         if True in matches:
             matchedIdxs = [i for (i, b) in enumerate(matches) if b]
             counts = {}
-
-            print(matchedIdxs)
 
             for i in matchedIdxs:
                 name = data["names"][i]
@@ -106,7 +100,7 @@ def _css_to_rect(css):
     """
     return dlib.rectangle(css[3], css[0], css[1], css[2])
 
-def compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.3):
+def compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.4):
     """
     Compare a list of face encodings against a candidate encoding to see if they match.
     :param known_face_encodings: A list of known face encodings
@@ -128,5 +122,4 @@ def face_distance(face_encodings, face_to_compare):
         return np.empty((0))
 
     dist = np.linalg.norm(face_encodings - face_to_compare, axis=1)
-    # print(dist)
     return dist
