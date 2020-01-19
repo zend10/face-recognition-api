@@ -56,16 +56,51 @@ def identifying_faces_from_group(asset_path, group):
         matches = compare_faces(data["encodings"], encoding)
         name = "Unknown"
 
-        if True in matches:
-            matchedIdxs = [i for (i, b) in enumerate(matches) if b]
-            counts = {}
-
-            for i in matchedIdxs:
-                name = data["names"][i]
+        counts = {}
+        totalDistance = {}
+        for (index, distance) in enumerate(matches):
+            if distance <= 0.4:
+                name = data["names"][index]
                 counts[name] = counts.get(name, 0) + 1
+                totalDistance[name] = totalDistance.get(name, 0) + distance
 
-            name = max(counts, key=counts.get)
+        highestCount = 0
+        for attr, value in counts.items():
+            if value > highestCount:
+                highestCount = value
+                
 
+        candidates = {}
+        for attr, value in counts.items():
+            if value == highestCount:
+                candidates[attr] = totalDistance[attr]
+
+        nearestDistance = 1
+        for attr, value in candidates.items():
+            distance = value / counts[attr]
+            if distance < nearestDistance:
+                name = attr
+                nearestDistance = distance
+
+
+
+        # if True in matches:
+        #     matchedIdxs = [i for (i, b) in enumerate(matches) if b]
+        #     counts = {}
+
+        #     for i in matchedIdxs:
+        #         name = data["names"][i]
+        #         counts[name] = counts.get(name, 0) + 1
+        #         print(name)
+
+        #     name = max(counts, key=counts.get)
+
+        print(totalDistance)
+        print(counts)
+        print(highestCount)
+        print(candidates)
+        print(name)
+        print(nearestDistance)
         names.append(name)
 
     return names
@@ -108,7 +143,8 @@ def compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.4):
     :param tolerance: How much distance between faces to consider it a match. Lower is more strict. 0.6 is typical best performance.
     :return: A list of True/False values indicating which known_face_encodings match the face encoding to check
     """
-    return list(face_distance(known_face_encodings, face_encoding_to_check) <= tolerance)
+    # return list(face_distance(known_face_encodings, face_encoding_to_check) <= tolerance)
+    return list(face_distance(known_face_encodings, face_encoding_to_check))
 
 def face_distance(face_encodings, face_to_compare):
     """
