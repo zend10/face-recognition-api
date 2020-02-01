@@ -28,6 +28,10 @@ def get_box(rgb):
 
     boxesList = np.array(boxesList)
     pick = non_max_suppression_slow(boxesList, 0.3)
+
+    if len(pick) == 0:
+        return []
+        
     return [(pick[0][1], pick[0][2], pick[0][3], pick[0][0])]
 
 def sliding_window(img, patch_size=(64, 48), istep=2, jstep=2, scale=1.0):

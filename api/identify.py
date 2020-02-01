@@ -42,13 +42,17 @@ def identifying_faces(asset_path):
 
     return names
 
-def identifying_faces_from_group(asset_path, group):
+def identifying_faces_from_group(asset_path, group, username, exclude = False):
     path_name = 'asset' + os.path.sep + group + os.path.sep + 'encodings.pickle'
     data = pickle.loads(open(path_name, 'rb').read())
     image = cv2.imread(asset_path)
     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     boxes = dcp.get_box(rgb)
+    
+    if boxes == []:
+        return ["Unknown"]
+
     encodings = face_encodings(rgb, boxes)
 
     names = []
@@ -63,6 +67,15 @@ def identifying_faces_from_group(asset_path, group):
                 name = data["names"][index]
                 counts[name] = counts.get(name, 0) + 1
                 totalDistance[name] = totalDistance.get(name, 0) + distance
+
+        if username != None and exclude == False:
+            if counts.get(username) != None and counts.get(username) > 0:
+                return [username]
+
+        if username != None and exclude == True:
+            if counts.get(username) != None and counts.get(username) > 0:
+                counts[username] = 0
+                totalDistance[username] = 0
 
         highestCount = 0
         for attr, value in counts.items():
@@ -81,19 +94,6 @@ def identifying_faces_from_group(asset_path, group):
             if distance < nearestDistance:
                 name = attr
                 nearestDistance = distance
-
-
-
-        # if True in matches:
-        #     matchedIdxs = [i for (i, b) in enumerate(matches) if b]
-        #     counts = {}
-
-        #     for i in matchedIdxs:
-        #         name = data["names"][i]
-        #         counts[name] = counts.get(name, 0) + 1
-        #         print(name)
-
-        #     name = max(counts, key=counts.get)
 
         print(totalDistance)
         print(counts)
