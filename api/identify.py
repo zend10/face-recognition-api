@@ -71,6 +71,8 @@ def identifying_faces_from_group(asset_path, group, username, exclude = False):
         if username != None and exclude == False:
             if counts.get(username) != None and counts.get(username) > 0:
                 return [username]
+            else:
+                return ["Unknown"]
 
         if username != None and exclude == True:
             if counts.get(username) != None and counts.get(username) > 0:
