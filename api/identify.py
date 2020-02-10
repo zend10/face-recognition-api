@@ -76,8 +76,9 @@ def identifying_faces_from_group(asset_path, group, username, exclude = False):
 
         if username != None and exclude == True:
             if counts.get(username) != None and counts.get(username) > 0:
-                counts[username] = 0
-                totalDistance[username] = 0
+                name = "Unknown"
+                del counts[username]
+                del totalDistance[username]
 
         highestCount = 0
         for attr, value in counts.items():
