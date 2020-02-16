@@ -2,6 +2,8 @@ import numpy as np
 import joblib as joblib
 import cv2
 
+import matplotlib.pyplot as plt
+
 
 from skimage import data, color, transform
 from skimage.io import imread
@@ -34,6 +36,13 @@ print('Retrieving positive_patches')
 faces = fetch_lfw_people()
 positive_patches = np.array([cv2.resize(img, (48, 64), interpolation=cv2.INTER_AREA) for img in faces.images])
 
+# fig, ax = plt.subplots(2, 5)
+# for i, axi in enumerate(ax.flat):
+#     axi.imshow(positive_patches[100 * i], cmap='gray')
+#     axi.axis('off')
+
+# plt.show()
+
 print('positive_patches retrieved')
 getCurrTime()
 print('Collecting negative images')
@@ -57,7 +66,7 @@ for index, filename in enumerate(glob.glob(os.path.join('images', '*.jpg'))):
     # To limit to only 150 images
     # Comment these 2 lines to train with all images in "images" folder
     # In my very specific case, I can only afford that many images
-    if (len(images) == 11):
+    if (len(images) == 13):
         break
 
 print('Negative images collected')
@@ -77,6 +86,9 @@ def extract_patches(img, N, scale=1.0, patch_size=positive_patches[0].shape):
 negative_patches = np.vstack([extract_patches(im, 1000, scale)
                               for im in images for scale in [0.5, 1.0, 2.0]])
 
+# negative_patches = np.vstack([extract_patches(im, 1, scale)
+#                               for im in images for scale in [0.5, 1.0, 2.0]])
+
 print('negative_patches retrieved')
 getCurrTime()
 print('Extracting HOG features')
@@ -84,6 +96,11 @@ print('Extracting HOG features')
 X_train = np.array([hog.hog(im)
                     for im in chain(positive_patches,
                                     negative_patches)])
+
+# X_train = np.array([hog.hog(im)
+#                     for im in positive_patches])
+
+
 y_train = np.zeros(X_train.shape[0])
 y_train[:positive_patches.shape[0]] = 1
 
@@ -100,7 +117,7 @@ print('Start training')
 
 model = grid.best_estimator_
 model.fit(X_train, y_train)
-joblib.dump(model, 'svm_training_data.dat')
+joblib.dump(model, 'svm_training_data_2.dat')
 
 print('Training finished')
 print('Training data is saved as svm_training_data.dat')

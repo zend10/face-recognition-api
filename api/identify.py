@@ -42,7 +42,7 @@ def identifying_faces(asset_path):
 
     return names
 
-def identifying_faces_from_group(asset_path, group, username, exclude = False):
+def identifying_faces_from_group(asset_path, group, username):
     path_name = 'asset' + os.path.sep + group + os.path.sep + 'encodings.pickle'
     data = pickle.loads(open(path_name, 'rb').read())
     image = cv2.imread(asset_path)
@@ -67,18 +67,6 @@ def identifying_faces_from_group(asset_path, group, username, exclude = False):
                 name = data["names"][index]
                 counts[name] = counts.get(name, 0) + 1
                 totalDistance[name] = totalDistance.get(name, 0) + distance
-
-        if username != None and exclude == False:
-            if counts.get(username) != None and counts.get(username) > 0:
-                return [username]
-            else:
-                return ["Unknown"]
-
-        if username != None and exclude == True:
-            if counts.get(username) != None and counts.get(username) > 0:
-                name = "Unknown"
-                del counts[username]
-                del totalDistance[username]
 
         highestCount = 0
         for attr, value in counts.items():

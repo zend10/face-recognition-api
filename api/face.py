@@ -172,14 +172,9 @@ def identify_from_group():
         f.write(image_data)
 
     username = request.form.get('username')
-    if request.form.get('exclude') == 'true':
-        exclude = True
-    else:
-        exclude = False
-    
 
     # Machine learning here
-    names = id.identifying_faces_from_group(path, group, username, exclude)
+    names = id.identifying_faces_from_group(path, group, username)
 
     print(names)
 
